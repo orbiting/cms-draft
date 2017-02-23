@@ -1,0 +1,16 @@
+# dependencies
+/node_modules
+
+# testing
+/coverage
+
+# production
+/build
+
+# next
+/.next
+
+# misc
+.DS_Store
+.env
+npm-debug.log
