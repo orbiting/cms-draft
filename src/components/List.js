@@ -2,10 +2,11 @@ import React from 'react'
 
 import gql from 'graphql-tag'
 import {graphql} from 'react-apollo'
+import {GH_OWNER, GH_REPO} from '../../constants'
 
 const query = gql`
 query list {
-  repository(owner: "tpreusse", name: "cms-draft") {
+  repository(owner: "${GH_OWNER}", name: "${GH_REPO}") {
     ref(qualifiedName: "refs/heads/master") {
       prefix
       name
@@ -30,7 +31,7 @@ query list {
 `
 
 const List = ({entries}) => (
-	<ul>
+  <ul>
     {entries.map((entry, i) => <li key={i}>{entry.name}</li>)}
   </ul>
 )

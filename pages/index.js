@@ -4,6 +4,6 @@ import withData from '../src/apollo/withData'
 
 export default withData((props) => (
   <App>
-  	<List />
+    <List />
   </App>
 ))
