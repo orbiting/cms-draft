@@ -39,7 +39,7 @@ class EditorWithState extends Component {
       ghRepo
         .writeFile(
           'test',
-          'content/test.json',
+          `content/${this.props.path}`,
           json,
           'Test Save',
           {},
@@ -75,15 +75,16 @@ class EditorWithState extends Component {
 }
 
 class EditorWithContent extends Component {
-  static async getInitialProps () {
+  static async getInitialProps ({query: {path}}) {
     return ghRepo
-      .getSha('test', 'content/test.json')
+      .getSha('test', `content/${path}`)
         .then(
           ({data}) => {
             return {
               content: JSON.parse(
                 Base64.decode(data.content)
-              )
+              ),
+              path
             }
           }
         )
@@ -93,14 +94,14 @@ class EditorWithContent extends Component {
         })
   }
   render () {
-    const {content} = this.props
+    const {content, path} = this.props
     return (
       <App>
         <Head>
           <link rel='stylesheet' href='https://unpkg.com/medium-draft/dist/medium-draft.css' />
           <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css' />
         </Head>
-        <EditorWithState content={content} />
+        <EditorWithState path={path} content={content} />
       </App>
     )
   }

@@ -4,7 +4,7 @@
   "description": "A CMS powered by GitHub GraphQL API, Next.js and Draft.js.",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon -w index.js index.js",
+    "dev": "nodemon -w index.js -w routes.js index.js",
     "build": "next build",
     "start": "node index.js",
     "standardize": "standard --fix 'src/**/*.js' 'pages/**/*.js'"

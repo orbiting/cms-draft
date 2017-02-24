@@ -3,11 +3,12 @@ import React from 'react'
 import gql from 'graphql-tag'
 import {graphql} from 'react-apollo'
 import {GH_OWNER, GH_REPO} from '../../constants'
+import {Link} from '../../routes'
 
 const query = gql`
 query list {
   repository(owner: "${GH_OWNER}", name: "${GH_REPO}") {
-    ref(qualifiedName: "refs/heads/master") {
+    ref(qualifiedName: "refs/heads/test") {
       prefix
       name
       target {
@@ -21,6 +22,13 @@ query list {
               name
               oid
               type
+              object {
+                ... on Tree {
+                  entries {
+                    name
+                  }
+                }
+              }
             }
           }
         }
@@ -32,18 +40,30 @@ query list {
 
 const List = ({entries}) => (
   <ul>
-    {entries.map((entry, i) => <li key={i}>{entry.name}</li>)}
+    {entries.map((entry, i) => (
+      <li key={i}>
+        <Link route='editor' params={{path: entry.name}}>
+          <a>{entry.name}</a>
+        </Link>
+      </li>
+    ))}
   </ul>
 )
 
 const ListWithQuery = graphql(query, {
   props: ({data}) => {
+    const entries = data.repository
+      ? data.repository.ref.target.tree.entries
+      : []
+    const content = entries.find(entry => entry.name === 'content')
+    const contentEntries = content
+      ? content.object.entries
+      : []
+
     return {
       loading: data.loading,
       error: data.error,
-      entries: data.repository
-        ? data.repository.ref.target.tree.entries
-        : []
+      entries: contentEntries
     }
   }
 })(List)
