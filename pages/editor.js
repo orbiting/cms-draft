@@ -59,7 +59,6 @@ class EditorWithState extends Component {
   }
 
   render () {
-    const {content} = this.props
     const {editorState} = this.state
     return (
       <div>
