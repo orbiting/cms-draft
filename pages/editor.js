@@ -5,7 +5,8 @@ import Head from 'next/head'
 import {GH_API_BASE, GH_OWNER, GH_REPO} from '../constants'
 import GitHub from 'github-api'
 import {Base64} from 'js-base64'
-import {mdToDraftjs, draftjsToMd} from 'draftjs-md-converter'
+import {stateFromMarkdown} from 'draft-js-import-markdown'
+import {stateToMarkdown} from 'draft-js-export-markdown'
 import {timeFormat} from 'd3-time-format'
 
 import {
@@ -29,7 +30,7 @@ class EditorWithState extends Component {
 
     this.state = {
       editorState: createEditorState(
-        content && mdToDraftjs(content)
+        content && convertToRaw(stateFromMarkdown(content))
       ),
       messages: props.messages || []
     }
@@ -45,9 +46,10 @@ class EditorWithState extends Component {
       //   null,
       //   2
       // )
-      const md = draftjsToMd(convertToRaw(
+      const md = stateToMarkdown(
         this.state.editorState.getCurrentContent()
-      ))
+      )
+
       ghRepo
         .writeFile(
           'test',
