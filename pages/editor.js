@@ -58,7 +58,7 @@ class EditorWithState extends Component {
           (error, data) => {
             if (error) {
               this.setState({
-                messages: [error]
+                messages: [error.toString()]
               })
             } else {
               this.setState({
