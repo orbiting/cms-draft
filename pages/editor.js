@@ -2,12 +2,12 @@ import React, {Component} from 'react'
 import withData from '../src/apollo/withData'
 import App from '../src/components/App'
 import Head from 'next/head'
-import {GH_API_BASE, GH_OWNER, GH_REPO} from '../constants'
-import GitHub from 'github-api'
 import {Base64} from 'js-base64'
 import {stateFromMarkdown} from 'draft-js-import-markdown'
 import {stateToMarkdown} from 'draft-js-export-markdown'
 import {timeFormat} from 'd3-time-format'
+import CustomImageSideButton from '../src/components/ImageButton'
+import {repo} from '../src/api/github'
 
 import {
   Editor,
@@ -19,8 +19,10 @@ import {
 
 const formatSaveTime = timeFormat('%H:%M')
 
-const ghRepo = new GitHub({}, GH_API_BASE)
-  .getRepo(GH_OWNER, GH_REPO)
+const sideButtons = [{
+  title: 'Image',
+  component: CustomImageSideButton
+}]
 
 class EditorWithState extends Component {
   constructor (props) {
@@ -50,7 +52,7 @@ class EditorWithState extends Component {
         this.state.editorState.getCurrentContent()
       )
 
-      ghRepo
+      repo
         .writeFile(
           'test',
           `content/${this.props.path}`,
@@ -89,7 +91,8 @@ class EditorWithState extends Component {
         <Editor
           ref='editor'
           editorState={editorState}
-          onChange={this.onChange} />
+          onChange={this.onChange}
+          sideButtons={sideButtons} />
       </div>
     )
   }
@@ -97,7 +100,7 @@ class EditorWithState extends Component {
 
 class EditorWithContent extends Component {
   static async getInitialProps ({query: {path}}) {
-    return ghRepo
+    return repo
       .getSha('test', `content/${path}`)
         .then(({data}) => {
           return {
@@ -124,7 +127,10 @@ class EditorWithContent extends Component {
           <link rel='stylesheet' href='https://unpkg.com/medium-draft/dist/medium-draft.css' />
           <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css' />
         </Head>
-        <EditorWithState path={path} content={content} messages={messages} />
+        <EditorWithState
+          path={path}
+          content={content}
+          messages={messages} />
       </App>
     )
   }
