@@ -6,7 +6,7 @@ import {Base64} from 'js-base64'
 import {timeFormat} from 'd3-time-format'
 import CustomImageSideButton from '../src/components/ImageButton'
 import {repo} from '../src/api/github'
-import {draftToMarkdown, markdownToDraft} from 'markdown-draft-js'
+import {convertMdToDraft, convertDraftToMd} from '../src/utils/markdown'
 
 import {
   Editor,
@@ -31,7 +31,7 @@ class EditorWithState extends Component {
 
     this.state = {
       editorState: createEditorState(
-        content && markdownToDraft(content)
+        content && convertMdToDraft(content)
       ),
       messages: props.messages || []
     }
@@ -47,9 +47,12 @@ class EditorWithState extends Component {
       //   null,
       //   2
       // )
-      const md = draftToMarkdown(
-        convertToRaw(this.state.editorState.getCurrentContent())
+      const md = convertDraftToMd(
+        convertToRaw(this.state.editorState.getCurrentContent()),
       )
+      // console.log(convertToRaw(this.state.editorState.getCurrentContent()))
+      // console.log(md)
+      // return
 
       repo
         .writeFile(
