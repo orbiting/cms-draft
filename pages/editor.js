@@ -3,11 +3,10 @@ import withData from '../src/apollo/withData'
 import App from '../src/components/App'
 import Head from 'next/head'
 import {Base64} from 'js-base64'
-import {stateFromMarkdown} from 'draft-js-import-markdown'
-import {stateToMarkdown} from 'draft-js-export-markdown'
 import {timeFormat} from 'd3-time-format'
 import CustomImageSideButton from '../src/components/ImageButton'
 import {repo} from '../src/api/github'
+import {draftToMarkdown, markdownToDraft} from 'markdown-draft-js'
 
 import {
   Editor,
@@ -32,7 +31,7 @@ class EditorWithState extends Component {
 
     this.state = {
       editorState: createEditorState(
-        content && convertToRaw(stateFromMarkdown(content))
+        content && markdownToDraft(content)
       ),
       messages: props.messages || []
     }
@@ -48,8 +47,8 @@ class EditorWithState extends Component {
       //   null,
       //   2
       // )
-      const md = stateToMarkdown(
-        this.state.editorState.getCurrentContent()
+      const md = draftToMarkdown(
+        convertToRaw(this.state.editorState.getCurrentContent())
       )
 
       repo
