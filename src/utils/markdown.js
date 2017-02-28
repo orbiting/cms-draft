@@ -2,13 +2,13 @@ import {draftToMarkdown, markdownToDraft} from 'markdown-draft-js'
 
 // md to draft
 const blockTypes = {
-  image_open: () => 'atomic:image'
-}
-const blockData = {
   image_open: (item) => {
     return {
-      src: item.src,
-      alt: item.alt
+      type: 'atomic:image',
+      data: {
+        src: item.src,
+        alt: item.alt
+      }
     }
   }
 }
@@ -83,8 +83,7 @@ export const convertMdToDraft = md => markdownToDraft(
   md,
   {
     use: [imageWrapper],
-    blockTypes,
-    blockData
+    blockTypes
   }
 )
 
