@@ -13,7 +13,7 @@ const blockData = {
   }
 }
 
-const ImageRegexp = /^!\[([^\]]*)]\s*\(([^)]+)\)/
+const ImageRegexp = /^!\[([^\]]*)]\s*\(([^)"]+)( "([^)"]+)")?\)/
 const imageWrapper = (remarkable) => {
   remarkable.block.ruler.before('paragraph', 'image', (state, startLine, endLine, silent) => {
     const pos = state.bMarks[startLine] + state.tShift[startLine]
@@ -46,7 +46,7 @@ const imageWrapper = (remarkable) => {
 
       state.tokens.push({
         type: 'inline',
-        content: '',
+        content: match[4] || '',
         level: state.level + 1,
         lines: [ startLine, state.line ],
         children: []
@@ -69,9 +69,10 @@ const styleItems = {
   'atomic:image': {
     open: (block) => {
       const alt = block.data.alt || ''
-      const title = block.data.title
-        ? ` "${block.data.title}"`
+      const title = block.text
+        ? ` "${block.text}"`
         : ''
+      block.text = ''
       return `![${alt}](${block.data.src}${title})`
     },
     close: () => ''
