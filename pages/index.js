@@ -3,11 +3,10 @@ import React, {Component} from 'react'
 import App from '../src/components/App'
 import Center from '../src/components/Center'
 import List from '../src/components/List'
+import Me, {withMe} from '../src/components/Me'
 import withData from '../src/apollo/withData'
 import {Router} from '../routes'
 import slugify from 'slugify'
-import gql from 'graphql-tag'
-import {graphql} from 'react-apollo'
 
 slugify.extend({
   'ä': 'ae',
@@ -45,12 +44,6 @@ const Login = () => (
   </div>
 )
 
-const query = gql`
-query index {
-  me
-}
-`
-
 const Index = ({me, loading}) => {
   if (loading) {
     return <span>...</span>
@@ -58,7 +51,8 @@ const Index = ({me, loading}) => {
   if (me) {
     return (
       <div>
-        <h1>Artikel</h1>
+        <h1><Me /></h1>
+        <h2>Artikel</h2>
         <List />
         <NewArticle />
       </div>
@@ -67,20 +61,12 @@ const Index = ({me, loading}) => {
   return <Login />
 }
 
-const IndexWithQuery = graphql(query, {
-  props: ({data}) => {
-    return {
-      loading: data.loading,
-      error: data.error,
-      me: data.me
-    }
-  }
-})(Index)
+const IndexWithMe = withMe(Index)
 
 export default withData((props) => (
   <App>
     <Center>
-      <IndexWithQuery />
+      <IndexWithMe />
     </Center>
   </App>
 ))

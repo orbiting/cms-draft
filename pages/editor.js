@@ -1,6 +1,4 @@
 import React, {Component} from 'react'
-import withData from '../src/apollo/withData'
-import App from '../src/components/App'
 import Head from 'next/head'
 import {Base64} from 'js-base64'
 import {timeFormat} from 'd3-time-format'
@@ -10,6 +8,11 @@ import {convertMdToDraft, convertDraftToMd} from '../src/utils/markdown'
 import customRendererFn from '../src/utils/renderer'
 import {safeLoad, safeDump} from 'js-yaml'
 import {basename} from 'path'
+import {Link, Router} from '../routes'
+
+import withData from '../src/apollo/withData'
+import App from '../src/components/App'
+import Me, {withMe} from '../src/components/Me'
 
 import gql from 'graphql-tag'
 import {graphql} from 'react-apollo'
@@ -146,6 +149,10 @@ class EditorWithState extends Component {
               {messages.map((message, i) => <li key={i}>{message}</li>)}
             </ul>
             <button onClick={this.save}>Speichern</button>
+            <h3><Me size={16} /></h3>
+            <Link route='index'>
+              <a>Übersicht</a>
+            </Link>
           </content>
         </div>
         <style jsx>{`
@@ -227,4 +234,13 @@ const EditorWithQuery = graphql(query, {
   }
 })(EditorPage)
 
-export default withData(EditorWithQuery)
+export default withData(withMe(EditorWithQuery, ({data, ownProps: {serverContext}}) => {
+  if (!data.me) {
+    if (serverContext) {
+      serverContext.res.redirect(302, '/')
+      serverContext.res.end()
+    } else {
+      Router.push('/')
+    }
+  }
+}))

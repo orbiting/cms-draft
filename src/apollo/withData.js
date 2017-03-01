@@ -19,7 +19,7 @@ export default (Component) => (
       if (!process.browser) {
         const app = (
           <ApolloProvider client={client} store={store}>
-            <Component {...props} />
+            <Component {...props} serverContext={ctx} />
           </ApolloProvider>
         )
         await getDataFromTree(app)

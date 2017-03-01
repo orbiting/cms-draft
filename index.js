@@ -20,7 +20,7 @@ app.prepare().then(() => {
 
   server.use('/gh', proxy('api.github.com', {
     decorateRequest: (proxyReq, originalReq) => {
-      proxyReq.headers['Authorization'] = `bearer ${process.env.GITHUB_TOKEN}`
+      proxyReq.headers['Authorization'] = `bearer ${originalReq.session.ghAccessToken}`
       return proxyReq
     },
     https: true

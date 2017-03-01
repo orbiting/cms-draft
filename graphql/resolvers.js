@@ -36,7 +36,7 @@ const resolveFunctions = {
       return gh.getUser()
         .getProfile()
         .then(({data}) => {
-          return data.name || data.login
+          return data
         })
     }
   }
