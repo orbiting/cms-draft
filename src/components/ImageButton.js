@@ -46,7 +46,7 @@ class CustomImageSideButton extends ImageSideButton {
               this.props.setEditorState(addNewBlock(
                 this.props.getEditorState(),
                 Block.IMAGE, {
-                  src: data.content.download_url
+                  src: `./images/${data.content.name}`
                 }
               ))
             }

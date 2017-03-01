@@ -18,6 +18,8 @@ const handler = routes.getRequestHandler(app)
 app.prepare().then(() => {
   const server = express()
 
+  server.use(require('./graphql'))
+
   server.use('/gh', proxy('api.github.com', {
     decorateRequest: (proxyReq, originalReq) => {
       proxyReq.headers['Authorization'] = `bearer ${process.env.GITHUB_TOKEN}`

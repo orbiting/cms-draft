@@ -7,6 +7,10 @@ import {timeFormat} from 'd3-time-format'
 import CustomImageSideButton from '../src/components/ImageButton'
 import {repo} from '../src/api/github'
 import {convertMdToDraft, convertDraftToMd} from '../src/utils/markdown'
+import customRendererFn from '../src/utils/renderer'
+
+import gql from 'graphql-tag'
+import {graphql} from 'react-apollo'
 
 import {
   Editor,
@@ -57,7 +61,7 @@ class EditorWithState extends Component {
       repo
         .writeFile(
           'test',
-          `content/${this.props.path}`,
+          this.props.path,
           md,
           'Test Save',
           {},
@@ -81,6 +85,7 @@ class EditorWithState extends Component {
   }
 
   render () {
+    const {path} = this.props
     const {editorState, messages} = this.state
     return (
       <div>
@@ -94,48 +99,56 @@ class EditorWithState extends Component {
           ref='editor'
           editorState={editorState}
           onChange={this.onChange}
-          sideButtons={sideButtons} />
+          sideButtons={sideButtons}
+          rendererFn={customRendererFn(path)} />
       </div>
     )
   }
 }
 
-class EditorWithContent extends Component {
-  static async getInitialProps ({query: {path}}) {
-    return repo
-      .getSha('test', `content/${path}`)
-        .then(({data}) => {
-          return {
-            content: Base64.decode(data.content),
-            path
-          }
-        })
-        .catch((error) => {
-          let message = error.toString()
-          if (error.response.status === 404) {
-            message = 'Neues Dokument'
-          }
-          return {
-            messages: [message],
-            path
-          }
-        })
-  }
-  render () {
-    const {content, path, messages} = this.props
-    return (
-      <App>
-        <Head>
-          <link rel='stylesheet' href='https://unpkg.com/medium-draft/dist/medium-draft.css' />
-          <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css' />
-        </Head>
-        <EditorWithState
-          path={path}
-          content={content}
-          messages={messages} />
-      </App>
-    )
+const query = gql`
+query get($path: String!) {
+  ref {
+    contents(path: $path) {
+      content
+      path
+    }
   }
 }
+`
 
-export default withData(EditorWithContent)
+const EditorPage = ({loading, content, path}) => (
+  <App>
+    <Head>
+      <link rel='stylesheet' href='https://unpkg.com/medium-draft/dist/medium-draft.css' />
+      <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css' />
+    </Head>
+    {!loading && <EditorWithState
+      path={path}
+      content={content} />}
+  </App>
+)
+
+const EditorWithQuery = graphql(query, {
+  options: ({url, url: {query: {path}}}) => {
+    return {
+      variables: {
+        path: `content/${path}`
+      }
+    }
+  },
+  props: ({data, ownProps: {url, url: {query: {path}}}}) => {
+    const content = data.ref
+      ? data.ref.contents[0].content
+      : undefined
+
+    return {
+      loading: data.loading,
+      error: data.error,
+      content: content ? Base64.decode(content) : '',
+      path: `content/${path}`
+    }
+  }
+})(EditorPage)
+
+export default withData(EditorWithQuery)

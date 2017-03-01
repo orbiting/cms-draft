@@ -4,7 +4,7 @@
   "description": "A CMS powered by GitHub GraphQL API, Next.js and Draft.js.",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon -w index.js -w routes.js index.js",
+    "dev": "nodemon -w index.js -w routes.js -w graphql index.js",
     "build": "next build",
     "start": "node index.js",
     "standardize": "standard --fix 'src/**/*.js' 'pages/**/*.js'"
@@ -13,6 +13,7 @@
     "apollo-client": "^0.7.3",
     "babel-polyfill": "^6.23.0",
     "blueimp-md5": "^2.7.0",
+    "body-parser": "^1.16.1",
     "d3-time-format": "^2.0.3",
     "dotenv": "^4.0.0",
     "draft-js": "^0.9.1",
@@ -20,7 +21,9 @@
     "express-http-proxy": "^0.11.0",
     "github-api": "^3.0.0",
     "graphql": "^0.8.2",
+    "graphql-server-express": "^0.6.0",
     "graphql-tag": "^1.2.3",
+    "graphql-tools": "^0.10.0",
     "js-base64": "^2.1.9",
     "markdown-draft-js": "tpreusse/markdown-draft-js#more_customizable_entities",
     "medium-draft": "0.4.0",
