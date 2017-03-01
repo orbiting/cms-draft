@@ -9,6 +9,7 @@ import {repo} from '../src/api/github'
 import {convertMdToDraft, convertDraftToMd} from '../src/utils/markdown'
 import customRendererFn from '../src/utils/renderer'
 import {safeLoad, safeDump} from 'js-yaml'
+import {basename} from 'path'
 
 import gql from 'graphql-tag'
 import {graphql} from 'react-apollo'
@@ -28,13 +29,18 @@ const sideButtons = [{
   component: CustomImageSideButton
 }]
 
+const metaLabels = {
+  title: 'Titel',
+  author: 'Autor'
+}
+
 class EditorWithState extends Component {
   constructor (props) {
     super(props)
 
     let content = props.content
     let meta = {
-      title: '',
+      title: basename(props.path, '.md'),
       author: ''
     }
     const separator = /^---\s*/
@@ -104,7 +110,7 @@ class EditorWithState extends Component {
 
   render () {
     const {path} = this.props
-    const {editorState, messages} = this.state
+    const {editorState, messages, meta} = this.state
     return (
       <div className='container'>
         <main>
@@ -119,6 +125,23 @@ class EditorWithState extends Component {
         </main>
         <div className='sidebar'>
           <content>
+            <h2>Meta Daten</h2>
+            {
+              Object.keys(meta).map(key => (
+                <p key={key}>
+                  <label>
+                    {metaLabels[key] || key}<br />
+                    <input value={meta[key]} onChange={(event) => this.setState({
+                      meta: {
+                        ...meta,
+                        [key]: event.target.value
+                      }
+                    })} />
+                  </label>
+                </p>
+              ))
+            }
+            <h2>Speichern</h2>
             <ul>
               {messages.map((message, i) => <li key={i}>{message}</li>)}
             </ul>
