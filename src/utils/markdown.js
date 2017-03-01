@@ -82,7 +82,7 @@ const styleItems = {
 export const convertMdToDraft = md => markdownToDraft(
   md,
   {
-    use: [imageWrapper],
+    remarkablePlugins: [imageWrapper],
     blockTypes
   }
 )
