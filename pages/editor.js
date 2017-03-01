@@ -88,19 +88,50 @@ class EditorWithState extends Component {
     const {path} = this.props
     const {editorState, messages} = this.state
     return (
-      <div>
-        <div>
-          <ul>
-            {messages.map((message, i) => <li key={i}>{message}</li>)}
-          </ul>
-          <button onClick={this.save}>Speichern</button>
+      <div className='container'>
+        <main>
+          <content>
+            <Editor
+              ref='editor'
+              editorState={editorState}
+              onChange={this.onChange}
+              sideButtons={sideButtons}
+              rendererFn={customRendererFn(path)} />
+          </content>
+        </main>
+        <div className='sidebar'>
+          <content>
+            <ul>
+              {messages.map((message, i) => <li key={i}>{message}</li>)}
+            </ul>
+            <button onClick={this.save}>Speichern</button>
+          </content>
         </div>
-        <Editor
-          ref='editor'
-          editorState={editorState}
-          onChange={this.onChange}
-          sideButtons={sideButtons}
-          rendererFn={customRendererFn(path)} />
+        <style jsx>{`
+          .container {
+            position: relative;
+            padding-right: 300px;
+            min-height: 100vh;
+          }
+          content {
+            display: block;
+            padding: 20px;
+          }
+          main {
+            width: 80%;
+          }
+          .container content {
+            maxWidth: 640px;
+          }
+          .sidebar {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 300px;
+            background-color: #f6f6f6;
+          }
+        `}</style>
       </div>
     )
   }
