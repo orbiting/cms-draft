@@ -66,13 +66,6 @@ class EditorWithState extends Component {
       this.setState({editorState})
     }
     this.save = () => {
-      // const json = JSON.stringify(
-      //   convertToRaw(
-      //     this.state.editorState.getCurrentContent()
-      //   ),
-      //   null,
-      //   2
-      // )
       const md = convertDraftToMd(
         convertToRaw(this.state.editorState.getCurrentContent()),
       )
@@ -81,9 +74,6 @@ class EditorWithState extends Component {
         safeDump(this.state.meta),
         '---\n\n'
       ].join('')
-      // console.log(convertToRaw(this.state.editorState.getCurrentContent()))
-      // console.log(md)
-      // return
 
       repo
         .writeFile(
