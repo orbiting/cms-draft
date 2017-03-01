@@ -25,6 +25,7 @@
     "graphql-tag": "^1.2.3",
     "graphql-tools": "^0.10.0",
     "js-base64": "^2.1.9",
+    "js-yaml": "^3.8.1",
     "markdown-draft-js": "tpreusse/markdown-draft-js#pre-build",
     "medium-draft": "0.4.0",
     "next": "^2.0.0-beta",

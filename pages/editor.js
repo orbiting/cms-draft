@@ -8,6 +8,7 @@ import CustomImageSideButton from '../src/components/ImageButton'
 import {repo} from '../src/api/github'
 import {convertMdToDraft, convertDraftToMd} from '../src/utils/markdown'
 import customRendererFn from '../src/utils/renderer'
+import {safeLoad, safeDump} from 'js-yaml'
 
 import gql from 'graphql-tag'
 import {graphql} from 'react-apollo'
@@ -31,12 +32,24 @@ class EditorWithState extends Component {
   constructor (props) {
     super(props)
 
-    const content = props.content
+    let content = props.content
+    let meta = {
+      title: '',
+      author: ''
+    }
+    const separator = /^---\s*/
+    const lines = content.split('\n')
+    if (lines[0].match(separator)) {
+      const end = lines.findIndex((line, i) => i > 0 && line.match(separator))
+      meta = safeLoad(lines.slice(1, end).join('\n'))
+      content = lines.slice(end + 1).join('\n')
+    }
 
     this.state = {
       editorState: createEditorState(
-        content && convertMdToDraft(content)
+        content.trim() && convertMdToDraft(content)
       ),
+      meta,
       messages: props.messages || []
     }
 
@@ -54,6 +67,11 @@ class EditorWithState extends Component {
       const md = convertDraftToMd(
         convertToRaw(this.state.editorState.getCurrentContent()),
       )
+      const meta = [
+        '---\n',
+        safeDump(this.state.meta),
+        '---\n\n'
+      ].join('')
       // console.log(convertToRaw(this.state.editorState.getCurrentContent()))
       // console.log(md)
       // return
@@ -62,7 +80,7 @@ class EditorWithState extends Component {
         .writeFile(
           'test',
           this.props.path,
-          md,
+          `${meta}${md}`,
           'Test Save',
           {},
           (error, data) => {
