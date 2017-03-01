@@ -1,13 +1,12 @@
 const GitHub = require('github-api')
 const {GH_OWNER, GH_REPO} = require('../constants')
 
-const gh = new GitHub({
-  token: process.env.GITHUB_TOKEN
-})
-
 const resolveFunctions = {
   RootQuery: {
-    ref (_, {owner = GH_OWNER, repo = GH_REPO, branch = 'test'}) {
+    ref (_, {owner = GH_OWNER, repo = GH_REPO, branch = 'test'}, {session: {ghAccessToken}}) {
+      const gh = new GitHub({
+        token: ghAccessToken
+      })
       const ghRepo = gh
         .getRepo(owner, repo)
 
@@ -25,6 +24,20 @@ const resolveFunctions = {
             })
         }
       }
+    },
+    me (_, params, {session: {ghAccessToken}}) {
+      if (!ghAccessToken) {
+        return null
+      }
+      const gh = new GitHub({
+        token: ghAccessToken
+      })
+
+      return gh.getUser()
+        .getProfile()
+        .then(({data}) => {
+          return data.name || data.login
+        })
     }
   }
 }

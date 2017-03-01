@@ -20,6 +20,7 @@ type Ref {
 const queryDefinitions = `
 type RootQuery {
   ref(owner: String, repo: String, branch: String): Ref!
+  me: String
 }
 schema {
   query: RootQuery

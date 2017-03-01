@@ -2,11 +2,9 @@ const express = require('express')
 const next = require('next')
 const proxy = require('express-http-proxy')
 
-const {EXPRESS_PORT} = require('./constants')
+const {EXPRESS_PORT, DEV} = require('./constants')
 
 const routes = require('./routes')
-
-const DEV = process.env.NODE_ENV !== 'production'
 
 if (DEV) {
   require('dotenv').config()

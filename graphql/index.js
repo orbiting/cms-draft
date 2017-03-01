@@ -5,6 +5,7 @@ const {makeExecutableSchema} = require('graphql-tools')
 
 const Schema = require('./schema')
 const Resolvers = require('./resolvers')
+const auth = require('./auth')
 
 const executableSchema = makeExecutableSchema({
   typeDefs: Schema,
@@ -13,12 +14,16 @@ const executableSchema = makeExecutableSchema({
 
 const server = express()
 
+server.use(auth)
+
 server.use(
   '/graphql',
   bodyParser.json(),
   graphqlExpress(request => ({
     schema: executableSchema,
-    context: {}
+    context: {
+      session: request.session
+    }
   }))
 )
 
