@@ -69,7 +69,6 @@ const Index = ({me, loading}) => {
 
 const IndexWithQuery = graphql(query, {
   props: ({data}) => {
-    console.log(data)
     return {
       loading: data.loading,
       error: data.error,
