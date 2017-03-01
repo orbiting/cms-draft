@@ -40,7 +40,7 @@ class EditorWithState extends Component {
 
     let content = props.content
     let meta = {
-      title: basename(props.path, '.md'),
+      title: props.defaultTitle || '',
       author: ''
     }
     const separator = /^---\s*/
@@ -53,7 +53,7 @@ class EditorWithState extends Component {
 
     this.state = {
       editorState: createEditorState(
-        content.trim() && convertMdToDraft(content)
+        content.trim() ? convertMdToDraft(content) : undefined
       ),
       meta,
       messages: props.messages || []
@@ -189,13 +189,14 @@ query get($path: String!) {
 }
 `
 
-const EditorPage = ({loading, content, path}) => (
+const EditorPage = ({loading, content, path, defaultTitle}) => (
   <App>
     <Head>
       <link rel='stylesheet' href='https://unpkg.com/medium-draft/dist/medium-draft.css' />
       <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css' />
     </Head>
     {!loading && <EditorWithState
+      defaultTitle={defaultTitle}
       path={path}
       content={content} />}
   </App>
@@ -209,15 +210,18 @@ const EditorWithQuery = graphql(query, {
       }
     }
   },
-  props: ({data, ownProps: {url, url: {query: {path}}}}) => {
-    const content = data.ref
-      ? data.ref.contents[0].content
+  props: ({data, ownProps: {url, url: {query: {path, title}}}}) => {
+    const file = data.ref
+      ? data.ref.contents[0]
       : undefined
+
+    const content = file ? Base64.decode(file.content) : ''
 
     return {
       loading: data.loading,
       error: data.error,
-      content: content ? Base64.decode(content) : '',
+      content,
+      defaultTitle: title || basename(path, '.md'),
       path: `content/${path}`
     }
   }

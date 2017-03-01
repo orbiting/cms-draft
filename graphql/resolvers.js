@@ -17,6 +17,12 @@ const resolveFunctions = {
             .then(({data}) => {
               return [].concat(data)
             })
+            .catch((error) => {
+              if (error.response && error.response.status === 404) {
+                return []
+              }
+              throw error
+            })
         }
       }
     }
