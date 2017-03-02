@@ -9,6 +9,7 @@ import customRendererFn from '../src/utils/renderer'
 import {safeLoad, safeDump} from 'js-yaml'
 import {basename} from 'path'
 import {Link, Router} from '../routes'
+import initLocalStore from '../src/utils/localstorage'
 
 import withData from '../src/apollo/withData'
 import App from '../src/components/App'
@@ -42,6 +43,24 @@ class EditorWithState extends Component {
     super(props)
 
     let content = props.content
+
+    const messages = props.messages || []
+
+    const store = this.store = initLocalStore(props.path)
+    if (!store.supported) {
+      messages.push(
+        'Lokaler Speicher nicht verfügbar'
+      )
+    } else {
+      const localContent = store.get(props.sha)
+      if (localContent && localContent !== content) {
+        content = localContent
+        messages.push(
+          'Version wiederhergestellt aus lokalem Speicher'
+        )
+      }
+    }
+
     let meta = {
       title: props.defaultTitle || '',
       author: ''
@@ -59,13 +78,13 @@ class EditorWithState extends Component {
         content.trim() ? convertMdToDraft(content) : undefined
       ),
       meta,
-      messages: props.messages || []
+      messages
     }
 
     this.onChange = (editorState) => {
       this.setState({editorState})
     }
-    this.save = () => {
+    this.getMarkdown = () => {
       const md = convertDraftToMd(
         convertToRaw(this.state.editorState.getCurrentContent()),
       )
@@ -75,11 +94,14 @@ class EditorWithState extends Component {
         '---\n\n'
       ].join('')
 
+      return `${meta}${md}`
+    }
+    this.save = () => {
       repo
         .writeFile(
           'test',
           this.props.path,
-          `${meta}${md}`,
+          this.getMarkdown(),
           'Test Save',
           {},
           (error, data) => {
@@ -99,6 +121,9 @@ class EditorWithState extends Component {
 
   componentDidMount () {
     this.refs.editor.focus()
+  }
+  componentDidUpdate () {
+    this.store.set(this.props.sha, this.getMarkdown())
   }
 
   render () {
@@ -181,20 +206,23 @@ query get($path: String!) {
     contents(path: $path) {
       content
       path
+      sha
     }
   }
 }
 `
 
-const EditorPage = ({loading, content, path, defaultTitle}) => (
+const EditorPage = ({loading, content, path, sha, defaultTitle}) => (
   <App>
     <Head>
       <link rel='stylesheet' href='https://unpkg.com/medium-draft/dist/medium-draft.css' />
       <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css' />
     </Head>
     {!loading && <EditorWithState
+      key={path}
       defaultTitle={defaultTitle}
       path={path}
+      sha={sha}
       content={content} />}
   </App>
 )
@@ -218,6 +246,7 @@ const EditorWithQuery = graphql(query, {
       loading: data.loading,
       error: data.error,
       content,
+      sha: file ? file.sha : '',
       defaultTitle: title || basename(path, '.md'),
       path: `content/${path}`
     }
