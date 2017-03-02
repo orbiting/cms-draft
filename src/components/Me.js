@@ -52,8 +52,4 @@ Me.defaultProps = {
   size: 24
 }
 
-export default withMe(Me, (props) => {
-  if (props.ownProps.redirect) {
-    props.ownProps.redirect(props)
-  }
-})
+export default withMe(Me)

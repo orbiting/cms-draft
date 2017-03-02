@@ -6,13 +6,7 @@ import List from '../src/components/List'
 import Me, {withMe} from '../src/components/Me'
 import withData from '../src/apollo/withData'
 import {Router} from '../routes'
-import slugify from 'slugify'
-
-slugify.extend({
-  'ä': 'ae',
-  'ö': 'oe',
-  'ü': 'ue'
-})
+import slug from '../src/utils/slug'
 
 class NewArticle extends Component {
   render () {
@@ -23,7 +17,7 @@ class NewArticle extends Component {
         <input type='submit' value='erstellen' onClick={() => {
           const value = this.ref.value
           if (value) {
-            const path = `${slugify(value.toLowerCase())}.md`
+            const path = `${slug(value)}.md`
             Router.push(
               `/editor?path=${path}&title=${encodeURIComponent(value)}`,
               `/${path}/edit`
