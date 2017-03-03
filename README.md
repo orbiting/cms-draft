@@ -2,12 +2,20 @@
 
 A CMS powered by GitHub GraphQL API, Next.js and Draft.js.
 
-## Markdown with DraftJS
+## Development
 
-There seems to be no mature open source solution yet.
+You we'll need following environment variables:
+```
+SESSION_SECRET
+GITHUB_CLIENT_ID
+GITHUB_CLIENT_SECRET
+```
 
-Something would need to be written based on the following:
+You can use a `.env` file in development.
 
-- to MD: https://github.com/jpuri/draftjs-to-markdown
-- from MD: https://github.com/sstur/draft-js-import-markdown
-- both ways: https://github.com/kadikraman/draftjs-md-converter
+### Start the development server
+
+```
+npm install
+npm run dev
+```
