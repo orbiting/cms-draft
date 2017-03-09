@@ -27,7 +27,7 @@ const Image = ({className, src}) => (
 
 const ImageWithQuery = graphql(query, {
   props: ({data}) => {
-    const src = data.ref
+    const src = data.ref && data.ref.contents && data.ref.contents.length
       ? data.ref.contents[0].download_url
       : undefined
 
