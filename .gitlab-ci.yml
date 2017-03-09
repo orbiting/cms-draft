@@ -1,0 +1,18 @@
+image: docker:latest
+
+stages:
+- build-and-release
+
+variables:
+  CONTAINER_TEST_IMAGE: registry.git.project-r.construction/earlyBirds/cms-draft:$CI_BUILD_REF_NAME
+  CONTAINER_RELEASE_IMAGE: registry.git.project-r.construction/earlyBirds/cms-draft:latest
+
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.git.project-r.construction
+
+build-and-release:
+  stage: build-and-release
+  script:
+    - docker build -t $CONTAINER_TEST_IMAGE .
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+    - docker push $CONTAINER_RELEASE_IMAGE
