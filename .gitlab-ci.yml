@@ -4,8 +4,8 @@ stages:
 - build-and-release
 
 variables:
-  CONTAINER_TEST_IMAGE: registry.git.project-r.construction/earlyBirds/cms-draft:$CI_BUILD_REF_NAME
-  CONTAINER_RELEASE_IMAGE: registry.git.project-r.construction/earlyBirds/cms-draft:latest
+  CONTAINER_TEST_IMAGE: registry.git.project-r.construction/earlybirds/cms-draft:$CI_BUILD_REF_NAME
+  CONTAINER_RELEASE_IMAGE: registry.git.project-r.construction/earlybirds/cms-draft:latest
 
 before_script:
   - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.git.project-r.construction
