@@ -3,7 +3,7 @@ const session = require('express-session')
 const queryString = require('query-string')
 const fetch = require('isomorphic-fetch')
 const crypto = require('crypto')
-const {BASE_URL, DEV} = require('../constants')
+const {DEV, EXPRESS_PORT} = require('../constants')
 
 const server = express()
 
@@ -12,7 +12,7 @@ server.use(session({
   cookie: {
     path: '/',
     httpOnly: true,
-    secure: DEV ? BASE_URL.startsWith('https://') : true,
+    secure: !DEV,
     maxAge: null
   },
   secret: process.env.SESSION_SECRET,
@@ -60,7 +60,7 @@ server.get('/auth/callback', (request, response) => {
           .status(302)
           .set(
             'Location',
-            `${BASE_URL}/${callbackPath || ''}`
+            `${request.protocol}://${request.hostname}${DEV ? `:${EXPRESS_PORT}` : ''}/${callbackPath || ''}`
           )
           .end()
       } else {
@@ -80,7 +80,7 @@ server.get('/auth/login', (request, response) => {
     client_id: process.env.GITHUB_CLIENT_ID,
     state: state,
     scope: 'repo',
-    redirect_uri: `${BASE_URL}/auth/callback`
+    redirect_uri: `${request.protocol}://${request.hostname}${DEV ? `:${EXPRESS_PORT}` : ''}/auth/callback`
   }
 
   request.session.callbackPath = request.query.callbackPath

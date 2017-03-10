@@ -7,7 +7,7 @@ const port = location ? location.port : exports.EXPRESS_PORT
 const protocol = location ? location.protocol : 'http:'
 
 const BASE_URL_ADDRESS = `${protocol}//${address}${port ? `:${port}` : ''}`
-const BASE_URL = exports.BASE_URL = `${protocol}//${hostname}${port ? `:${port}` : ''}`
+const BASE_URL = `${protocol}//${hostname}${port ? `:${port}` : ''}`
 exports.GH_API_BASE = `${BASE_URL}/gh`
 exports.GRAPHQL_URI = `${BASE_URL_ADDRESS}/graphql`
 
