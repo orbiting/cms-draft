@@ -7,7 +7,9 @@ const {DEV, EXPRESS_PORT} = require('../constants')
 
 const server = express()
 
+server.enable('trust proxy')
 server.disable('x-powered-by')
+
 server.use(session({
   cookie: {
     path: '/',
