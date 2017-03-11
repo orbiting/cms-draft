@@ -1,20 +1,7 @@
 import {draftToMarkdown, markdownToDraft} from 'markdown-draft-js'
 
-// md to draft
-const blockTypes = {
-  image_open: (item) => {
-    return {
-      type: 'atomic:image',
-      data: {
-        src: item.src,
-        alt: item.alt
-      }
-    }
-  }
-}
-
 const ImageRegexp = /^!\[([^\]]*)]\s*\(([^)"]+)( "([^)"]+)")?\)/
-const imageWrapper = (remarkable) => {
+const imageBlock = (remarkable) => {
   remarkable.block.ruler.before('paragraph', 'image', (state, startLine, endLine, silent) => {
     const pos = state.bMarks[startLine] + state.tShift[startLine]
     const max = state.eMarks[startLine]
@@ -66,7 +53,7 @@ const imageWrapper = (remarkable) => {
 
 // draft to md
 const styleItems = {
-  'atomic:image': {
+  'atomic': {
     open: (block) => {
       const alt = block.data.alt || ''
       const title = block.text
@@ -82,8 +69,18 @@ const styleItems = {
 export const convertMdToDraft = md => markdownToDraft(
   md,
   {
-    remarkablePlugins: [imageWrapper],
-    blockTypes
+    remarkablePlugins: [imageBlock],
+    blockTypes: {
+      image_open: (item) => {
+        return {
+          type: 'atomic',
+          data: {
+            src: item.src,
+            alt: item.alt
+          }
+        }
+      }
+    }
   }
 )
 

@@ -2,10 +2,8 @@ import React, {Component} from 'react'
 import Head from 'next/head'
 import {Base64} from 'js-base64'
 import {timeFormat} from 'd3-time-format'
-import CustomImageSideButton from '../src/components/ImageButton'
 import {repo} from '../src/api/github'
 import {convertMdToDraft, convertDraftToMd} from '../src/utils/markdown'
-import customRendererFn from '../src/utils/renderer'
 import {safeLoad, safeDump} from 'js-yaml'
 import {basename} from 'path'
 import {Link, Router} from '../routes'
@@ -19,19 +17,27 @@ import gql from 'graphql-tag'
 import {graphql} from 'react-apollo'
 
 import {
-  Editor,
-  createEditorState
-} from 'medium-draft'
-import {
-  convertToRaw
+  convertFromRaw,
+  convertToRaw,
+  EditorState
 } from 'draft-js'
 
-const formatSaveTime = timeFormat('%H:%M')
+import Editor from 'draft-js-plugins-editor'
+import createImagePlugin from '../src/plugins/image'
+import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 
-const sideButtons = [{
-  title: 'Image',
-  component: CustomImageSideButton
-}]
+import createSideToolbarPlugin from 'draft-js-side-toolbar-plugin'
+import BlockTypeSelect from 'draft-js-side-toolbar-plugin/lib/components/BlockTypeSelect'
+import {
+  HeadlineOneButton,
+  HeadlineTwoButton,
+  BlockquoteButton,
+  CodeBlockButton,
+  UnorderedListButton,
+  OrderedListButton
+} from 'draft-js-buttons'
+
+const formatSaveTime = timeFormat('%H:%M')
 
 const metaLabels = {
   title: 'Titel',
@@ -41,6 +47,40 @@ const metaLabels = {
 class EditorWithState extends Component {
   constructor (props) {
     super(props)
+
+    const imagePlugin = createImagePlugin({
+      path: props.path
+    })
+    const sideToolbarPlugin = createSideToolbarPlugin({
+      structure: [
+        ({ getEditorState, setEditorState, theme }) => (
+          <BlockTypeSelect
+            getEditorState={getEditorState}
+            setEditorState={setEditorState}
+            theme={theme}
+            structure={[
+              HeadlineOneButton,
+              HeadlineTwoButton,
+              UnorderedListButton,
+              OrderedListButton,
+              BlockquoteButton,
+              CodeBlockButton,
+              imagePlugin.ImageButton
+            ]}
+          />
+        )
+      ]
+    })
+    const blockBreakoutPlugin = createBlockBreakoutPlugin({
+      breakoutBlocks: ['header-one', 'header-two', 'header-three', 'header-four', 'header-five', 'header-six', 'atomic']
+    })
+
+    this.SideToolbar = sideToolbarPlugin.SideToolbar
+    this.plugins = [
+      imagePlugin,
+      sideToolbarPlugin,
+      blockBreakoutPlugin
+    ]
 
     let content = props.content
 
@@ -73,10 +113,22 @@ class EditorWithState extends Component {
       content = lines.slice(end + 1).join('\n')
     }
 
+    const editorState = content.trim()
+      ? EditorState.createWithContent(
+          convertFromRaw(
+            convertMdToDraft(content)
+          )
+        )
+      : EditorState.createEmpty()
+
+    // console.log(
+    //   content.trim() &&
+    //   JSON.stringify(convertMdToDraft(content), null, 2),
+    //   content
+    // )
+
     this.state = {
-      editorState: createEditorState(
-        content.trim() ? convertMdToDraft(content) : undefined
-      ),
+      editorState,
       meta,
       messages
     }
@@ -127,8 +179,8 @@ class EditorWithState extends Component {
   }
 
   render () {
-    const {path} = this.props
     const {editorState, messages, meta} = this.state
+    const SideToolbar = this.SideToolbar
     return (
       <div className='container'>
         <main>
@@ -137,8 +189,8 @@ class EditorWithState extends Component {
               ref='editor'
               editorState={editorState}
               onChange={this.onChange}
-              sideButtons={sideButtons}
-              rendererFn={customRendererFn(path)} />
+              plugins={this.plugins} />
+            <SideToolbar />
           </content>
         </main>
         <div className='sidebar'>
@@ -170,6 +222,11 @@ class EditorWithState extends Component {
             </Link>
           </content>
         </div>
+        <style jsx global>{`
+          figure {
+            margin: 0;
+          }
+        `}</style>
         <style jsx>{`
           .container {
             position: relative;
@@ -182,6 +239,11 @@ class EditorWithState extends Component {
           }
           main {
             width: 80%;
+            box-sizing: border-box;
+            padding-left: 90px;
+          }
+          figure {
+            margin: 0;
           }
           .container content {
             maxWidth: 640px;
@@ -215,7 +277,8 @@ query get($path: String!) {
 const EditorPage = ({loading, content, path, sha, defaultTitle}) => (
   <App>
     <Head>
-      <link rel='stylesheet' href='https://unpkg.com/medium-draft/dist/medium-draft.css' />
+      <link rel='stylesheet' href='https://unpkg.com/draft-js@0.10.0/dist/Draft.css' />
+      <link rel='stylesheet' href='https://unpkg.com/draft-js-side-toolbar-plugin@2.0.0-beta6/lib/plugin.css' />
       <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css' />
     </Head>
     {!loading && <EditorWithState
