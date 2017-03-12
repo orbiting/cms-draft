@@ -1,13 +1,15 @@
-const express = require('express')
-const next = require('next')
-
-const {EXPRESS_PORT, DEV} = require('./constants')
-
-const routes = require('./routes')
-
+process.env.NODE_ENV = process.env.NODE_ENV || 'production'
+const DEV = process.env.NODE_ENV !== 'production'
 if (DEV) {
   require('dotenv').config()
 }
+
+const express = require('express')
+const next = require('next')
+
+const {EXPRESS_PORT} = require('./constants')
+
+const routes = require('./routes')
 
 const app = next({dir: '.', dev: DEV})
 const handler = routes.getRequestHandler(app)

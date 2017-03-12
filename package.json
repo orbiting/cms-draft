@@ -1,10 +1,10 @@
 {
   "name": "cms-draft",
   "version": "0.0.1",
-  "description": "A CMS powered by GitHub GraphQL API, Next.js and Draft.js.",
+  "description": "A CMS powered by GitHub APIs, Next.js and Draft.js.",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon -w index.js -w routes.js -w constants.js -w graphql index.js",
+    "dev": "NODE_ENV=development nodemon -w index.js -w routes.js -w constants.js -w graphql index.js",
     "build": "next build",
     "start": "node index.js",
     "standardize": "standard --fix 'src/**/*.js' 'pages/**/*.js'"
@@ -46,14 +46,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/tpreusse/cms.git"
+    "url": "git+ssh://git@github.com/orbiting/cms-draft.git"
   },
   "author": "Thomas Preusse <t@preus.se> (https://t.preus.se/)",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/tpreusse/cms/issues"
+    "url": "https://github.com/orbiting/cms-draft/issues"
   },
-  "homepage": "https://github.com/tpreusse/cms#readme",
+  "homepage": "https://github.com/orbiting/cms-draft#readme",
   "devDependencies": {
     "nodemon": "^1.11.0",
     "standard": "^8.6.0"
