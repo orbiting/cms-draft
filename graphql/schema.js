@@ -49,14 +49,26 @@ type User {
 }
 `
 
-const queryDefinitions = `
+const definitions = `
 type RootQuery {
   ref(owner: String, repo: String, branch: String): Ref!
   me: User
 }
+type Mutation {
+  commitFile (
+    owner: String,
+    repo: String,
+    branch: String,
+    path: String!,
+    content: String!,
+    message: String!,
+    encode: Boolean
+  ): Content
+}
 schema {
   query: RootQuery
+  mutation: Mutation
 }
 `
 
-module.exports = [ghTypes, queryDefinitions]
+module.exports = [ghTypes, definitions]

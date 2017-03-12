@@ -18,7 +18,7 @@ server.use(auth)
 
 server.use(
   '/graphql',
-  bodyParser.json(),
+  bodyParser.json({limit: '10mb'}),
   graphqlExpress(request => ({
     schema: executableSchema,
     context: {

@@ -1,9 +1,28 @@
 const GitHub = require('github-api')
 const {GH_OWNER, GH_REPO} = require('../constants')
 
+const DEFAULT_BRANCH = 'test'
+
 const resolveFunctions = {
+  Mutation: {
+    commitFile (_, {owner = GH_OWNER, repo = GH_REPO, branch = DEFAULT_BRANCH, path, content, message, encode = true}, {session: {ghAccessToken}}) {
+      const gh = new GitHub({
+        token: ghAccessToken
+      })
+      const ghRepo = gh
+        .getRepo(owner, repo)
+
+      return ghRepo.writeFile(
+        branch,
+        path,
+        content,
+        message,
+        {encode}
+      ).then(({data}) => data.content)
+    }
+  },
   RootQuery: {
-    ref (_, {owner = GH_OWNER, repo = GH_REPO, branch = 'test'}, {session: {ghAccessToken}}) {
+    ref (_, {owner = GH_OWNER, repo = GH_REPO, branch = DEFAULT_BRANCH}, {session: {ghAccessToken}}) {
       const gh = new GitHub({
         token: ghAccessToken
       })

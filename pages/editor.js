@@ -2,7 +2,6 @@ import React, {Component} from 'react'
 import Head from 'next/head'
 import {Base64} from 'js-base64'
 import {timeFormat} from 'd3-time-format'
-import {repo} from '../src/api/github'
 import {convertMdToDraft, convertDraftToMd} from '../src/utils/markdown'
 import {safeLoad, safeDump} from 'js-yaml'
 import {basename} from 'path'
@@ -149,25 +148,23 @@ class EditorWithState extends Component {
       return `${meta}${md}`
     }
     this.save = () => {
-      repo
-        .writeFile(
-          'test',
-          this.props.path,
-          this.getMarkdown(),
-          'Test Save',
-          {},
-          (error, data) => {
-            if (error) {
-              this.setState({
-                messages: [error.toString()]
-              })
-            } else {
-              this.setState({
-                messages: [`Gespeichert ${formatSaveTime(new Date())}`]
-              })
-            }
-          }
-        )
+      this.props.commitFile({
+        variables: {
+          path: this.props.path,
+          content: this.getMarkdown(),
+          message: `Save ${this.props.path}`
+        }
+      })
+        .then(() => {
+          this.setState({
+            messages: [`Gespeichert ${formatSaveTime(new Date())}`]
+          })
+        })
+        .catch(error => {
+          this.setState({
+            messages: [error.toString()]
+          })
+        })
     }
   }
 
@@ -262,6 +259,15 @@ class EditorWithState extends Component {
   }
 }
 
+const commitFile = gql`
+  mutation commitFile($path: String!, $content: String!, $message: String!) {
+    commitFile(path: $path, content: $content, message: $message) {
+      sha
+    }
+  }
+`
+const EditorWithMutation = graphql(commitFile, {name: 'commitFile'})(EditorWithState)
+
 const query = gql`
 query get($path: String!) {
   ref {
@@ -281,7 +287,7 @@ const EditorPage = ({loading, content, path, sha, defaultTitle}) => (
       <link rel='stylesheet' href='https://unpkg.com/draft-js-side-toolbar-plugin@2.0.0-beta6/lib/plugin.css' />
       <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css' />
     </Head>
-    {!loading && <EditorWithState
+    {!loading && <EditorWithMutation
       key={path}
       defaultTitle={defaultTitle}
       path={path}

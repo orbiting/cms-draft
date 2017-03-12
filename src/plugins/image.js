@@ -12,7 +12,6 @@ import {
   addNewBlock
 } from '../utils/draft'
 
-import {repo} from '../api/github'
 import md5 from 'blueimp-md5'
 
 const addImage = (editorState, url) => {
@@ -48,23 +47,19 @@ class ImageButton extends Component {
     const file = e.target.files[0]
     if (file.type.indexOf('image/') === 0) {
       readFile(file).then(({content, filename}) => {
-        repo.writeFile(
-          'test',
-          `content/images/${md5(content)}-${filename}`,
-          content,
-          'Upload Image',
-          {encode: false},
-          (error, data) => {
-            if (error) {
-              console.error(error)
-            } else {
-              this.props.setEditorState(addImage(
-                this.props.getEditorState(),
-                `./images/${data.content.name}`
-              ))
-            }
+        this.props.commitFile({
+          variables: {
+            path: `content/images/${md5(content)}-${filename}`,
+            content,
+            message: `Upload ${filename}`,
+            encode: false
           }
-        )
+        }).then(({data}) => {
+          this.props.setEditorState(addImage(
+            this.props.getEditorState(),
+            `./images/${data.commitFile.name}`
+          ))
+        })
       })
     }
   }
@@ -90,6 +85,15 @@ class ImageButton extends Component {
     )
   }
 }
+
+const commitFile = gql`
+  mutation commitFile($path: String!, $content: String!, $message: String!, $encode: Boolean) {
+    commitFile(path: $path, content: $content, message: $message, encode: $encode) {
+      name
+    }
+  }
+`
+const ImageButtonWithMutation = graphql(commitFile, {name: 'commitFile'})(ImageButton)
 
 const query = gql`
 query get($path: String!) {
@@ -162,6 +166,6 @@ export default (config = {}) => {
       return null
     },
     addImage,
-    ImageButton
+    ImageButton: ImageButtonWithMutation
   }
 }
