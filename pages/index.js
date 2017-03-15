@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 
 import App from '../src/components/App'
 import Center from '../src/components/Center'
-import List from '../src/components/List'
+import ArticleList from '../src/components/List'
 import Me, {withMe} from '../src/components/Me'
 import withData from '../src/apollo/withData'
 import {Router} from '../routes'
@@ -47,7 +47,7 @@ const Index = ({me, loading}) => {
       <div>
         <h1><Me /></h1>
         <h2>Artikel</h2>
-        <List />
+        <ArticleList />
         <NewArticle />
       </div>
     )
