@@ -9,5 +9,5 @@ const protocol = location ? location.protocol : 'http:'
 const BASE_URL = `${protocol}//${host}${port ? `:${port}` : ''}`
 exports.GRAPHQL_URI = `${BASE_URL}/graphql`
 
-exports.GH_OWNER = 'tpreusse'
+exports.GH_OWNER = 'orbiting'
 exports.GH_REPO = 'cms-draft'
