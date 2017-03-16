@@ -51,11 +51,22 @@ const resolveFunctions = {
       const gh = new GitHub({
         token: ghAccessToken
       })
+      const ghUser = gh.getUser()
 
-      return gh.getUser()
+      return ghUser
         .getProfile()
         .then(({data}) => {
-          return data
+          return Object.assign({}, data, {
+            repos () {
+              return ghUser
+                .listRepos({
+                  sort: 'pushed'
+                })
+                .then(({data}) => {
+                  return data
+                })
+            }
+          })
         })
     }
   }

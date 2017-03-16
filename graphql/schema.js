@@ -19,18 +19,7 @@ type User {
   login: String!
   id: String!
   avatar_url: String
-  gravatar_id: String
   url: String
-  html_url: String
-  followers_url: String
-  following_url: String
-  gists_url: String
-  starred_url: String
-  subscriptions_url: String
-  organizations_url: String
-  repos_url: String
-  events_url: String
-  received_events_url: String
   type: String
   site_admin: Boolean
   name: String
@@ -40,10 +29,26 @@ type User {
   email: String
   hireable: Boolean
   bio: String
-  public_repos: Int
-  public_gists: Int
-  followers: Int
-  following: Int
+  repos: [Repo]
+  created_at: String
+  updated_at: String
+}
+type Permissions {
+  admin: Boolean
+  push: Boolean
+  pull: Boolean
+}
+type Repo {
+  id: String!
+  owner: User!
+  name: String!
+  full_name: String!
+  description: String
+  private: Boolean
+  fork: Boolean
+  url: String
+  default_branch: String
+  permissions: Permissions
   created_at: String
   updated_at: String
 }
@@ -51,14 +56,14 @@ type User {
 
 const definitions = `
 type RootQuery {
-  ref(owner: String, repo: String, branch: String): Ref!
+  ref(owner: String!, repo: String!, branch: String!): Ref!
   me: User
 }
 type Mutation {
   commitFile (
-    owner: String,
-    repo: String,
-    branch: String,
+    owner: String!,
+    repo: String!,
+    branch: String!,
     path: String!,
     content: String!,
     message: String!,

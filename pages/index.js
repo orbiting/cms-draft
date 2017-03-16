@@ -2,14 +2,17 @@ import React, {Component} from 'react'
 
 import App from '../src/components/App'
 import Center from '../src/components/Center'
-import ArticleList from '../src/components/List'
+import RepoSelect from '../src/components/RepoSelect'
+import FileList from '../src/components/FileList'
 import Me, {withMe} from '../src/components/Me'
 import withData from '../src/apollo/withData'
 import {Router} from '../routes'
 import slug from '../src/utils/slug'
+import {join as pathJoin} from 'path'
 
 class NewArticle extends Component {
   render () {
+    const {owner, repo, branch, path} = this.props
     return (
       <label>
         Neuer Artikel<br />
@@ -17,10 +20,15 @@ class NewArticle extends Component {
         <input type='submit' value='erstellen' onClick={() => {
           const value = this.ref.value
           if (value) {
-            const path = `${slug(value)}.md`
+            const filePath = pathJoin(path, `${slug(value)}.md`)
             Router.push(
-              `/editor?path=${path}&title=${encodeURIComponent(value)}`,
-              `/${path}/edit`
+              `/editor?${[
+                `owner=${owner}`,
+                `repo=${repo}`,
+                `branch=${branch}`,
+                `path=${filePath}`
+              ]}&title=${encodeURIComponent(value)}`,
+              `/${[owner, repo, branch, path].join('/')}/edit`
             )
           }
         }} />
@@ -38,17 +46,42 @@ const Login = () => (
   </div>
 )
 
-const Index = ({me, loading}) => {
+const Index = ({me, loading, url: {query}}) => {
   if (loading) {
     return <span>...</span>
   }
   if (me) {
+    const params = {
+      path: '',
+      ...query
+    }
+
     return (
       <div>
         <h1><Me /></h1>
-        <h2>Artikel</h2>
-        <ArticleList />
-        <NewArticle />
+        <RepoSelect
+          value={(query.repo
+            ? [query.owner, query.repo, query.branch].join('/')
+            : ''
+          )}
+          onChange={(event) => {
+            if (!event.target.value) {
+              Router.push('/')
+              return
+            }
+            const [owner, repo, branch] = event.target.value.split('/')
+            Router.push(`/?${[
+              `owner=${owner}`,
+              `repo=${repo}`,
+              `branch=${branch}`
+            ].join('&')}`)
+          }} />
+        {!!query.repo && (
+          <div>
+            <FileList {...params} />
+            <NewArticle {...params} />
+          </div>
+        )}
       </div>
     )
   }
@@ -57,10 +90,10 @@ const Index = ({me, loading}) => {
 
 const IndexWithMe = withMe(Index)
 
-export default withData((props) => (
+export default withData(({url}) => (
   <App>
     <Center>
-      <IndexWithMe />
+      <IndexWithMe url={url} />
     </Center>
   </App>
 ))

@@ -46,10 +46,17 @@ class ImageButton extends Component {
   onChange (e) {
     const file = e.target.files[0]
     if (file.type.indexOf('image/') === 0) {
+      const {
+        owner, repo, branch,
+        basePath
+      } = this.props
       readFile(file).then(({content, filename}) => {
         this.props.commitFile({
           variables: {
-            path: `content/images/${md5(content)}-${filename}`,
+            owner,
+            repo,
+            branch,
+            path: pathJoin(basePath, `images/${md5(content)}-${filename}`),
             content,
             message: `Upload ${filename}`,
             encode: false
@@ -87,8 +94,8 @@ class ImageButton extends Component {
 }
 
 const commitFile = gql`
-  mutation commitFile($path: String!, $content: String!, $message: String!, $encode: Boolean) {
-    commitFile(path: $path, content: $content, message: $message, encode: $encode) {
+  mutation commitFile($owner: String!, $repo: String!, $branch: String!, $path: String!, $content: String!, $message: String!, $encode: Boolean) {
+    commitFile(owner: $owner, repo: $repo, branch: $branch, path: $path, content: $content, message: $message, encode: $encode) {
       name
     }
   }
@@ -96,8 +103,8 @@ const commitFile = gql`
 const ImageButtonWithMutation = graphql(commitFile, {name: 'commitFile'})(ImageButton)
 
 const query = gql`
-query get($path: String!) {
-  ref {
+query get($owner: String!, $repo: String!, $branch: String!, $path: String!) {
+  ref(owner: $owner, repo: $repo, branch: $branch) {
     contents(path: $path) {
       download_url
     }
@@ -131,7 +138,7 @@ const ImageBlock = (props) => {
   const {
     block,
     className,
-    blockProps: {basePath}
+    blockProps: {owner, repo, branch, basePath}
   } = props
 
   const {src} = block.getData().toJS()
@@ -144,6 +151,9 @@ const ImageBlock = (props) => {
     <div>
       <ImageWithQuery
         className={className}
+        owner={owner}
+        repo={repo}
+        branch={branch}
         path={pathJoin(basePath, src)} />
       <EditorBlock {...props} />
     </div>
@@ -151,21 +161,27 @@ const ImageBlock = (props) => {
 }
 
 export default (config = {}) => {
+  const props = {
+    owner: config.owner,
+    repo: config.repo,
+    branch: config.branch,
+    basePath: config.path ? dirname(config.path) : ''
+  }
   return {
     blockRendererFn: (block) => {
       if (block.getType() === 'atomic') {
         return {
           component: ImageBlock,
           editable: true,
-          props: {
-            basePath: config.path ? dirname(config.path) : ''
-          }
+          props
         }
       }
 
       return null
     },
     addImage,
-    ImageButton: ImageButtonWithMutation
+    ImageButton: buttonProps => (
+      <ImageButtonWithMutation {...buttonProps} {...props} />
+    )
   }
 }

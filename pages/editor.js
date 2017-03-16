@@ -48,6 +48,9 @@ class EditorWithState extends Component {
     super(props)
 
     const imagePlugin = createImagePlugin({
+      owner: props.owner,
+      repo: props.repo,
+      branch: props.branch,
       path: props.path
     })
     const sideToolbarPlugin = createSideToolbarPlugin({
@@ -150,6 +153,9 @@ class EditorWithState extends Component {
     this.save = () => {
       this.props.commitFile({
         variables: {
+          owner: this.props.owner,
+          repo: this.props.repo,
+          branch: this.props.branch,
           path: this.props.path,
           content: this.getMarkdown(),
           message: `Save ${this.props.path}`
@@ -260,8 +266,9 @@ class EditorWithState extends Component {
 }
 
 const commitFile = gql`
-  mutation commitFile($path: String!, $content: String!, $message: String!) {
-    commitFile(path: $path, content: $content, message: $message) {
+  mutation commitFile($owner: String!, $repo: String!, $branch: String!, $path: String!, $content: String!, $message: String!) {
+    commitFile(owner: $owner, repo: $repo, branch: $branch, path: $path, content: $content, message: $message
+    ) {
       sha
     }
   }
@@ -269,8 +276,8 @@ const commitFile = gql`
 const EditorWithMutation = graphql(commitFile, {name: 'commitFile'})(EditorWithState)
 
 const query = gql`
-query get($path: String!) {
-  ref {
+query get($owner: String!, $repo: String!, $branch: String!, $path: String!) {
+  ref(owner: $owner, repo: $repo, branch: $branch) {
     contents(path: $path) {
       content
       path
@@ -280,7 +287,7 @@ query get($path: String!) {
 }
 `
 
-const EditorPage = ({loading, content, path, sha, defaultTitle}) => (
+const EditorPage = ({loading, content, owner, repo, branch, path, sha, defaultTitle}) => (
   <App>
     <Head>
       <link rel='stylesheet' href='https://unpkg.com/draft-js@0.10.0/dist/Draft.css' />
@@ -290,6 +297,9 @@ const EditorPage = ({loading, content, path, sha, defaultTitle}) => (
     {!loading && <EditorWithMutation
       key={path}
       defaultTitle={defaultTitle}
+      owner={owner}
+      repo={repo}
+      branch={branch}
       path={path}
       sha={sha}
       content={content} />}
@@ -297,14 +307,17 @@ const EditorPage = ({loading, content, path, sha, defaultTitle}) => (
 )
 
 const EditorWithQuery = graphql(query, {
-  options: ({url, url: {query: {path}}}) => {
+  options: ({url: {query: {owner, repo, branch, path}}}) => {
     return {
       variables: {
-        path: `content/${path}`
+        owner,
+        repo,
+        branch,
+        path
       }
     }
   },
-  props: ({data, ownProps: {url, url: {query: {path, title}}}}) => {
+  props: ({data, ownProps: {url: {query: {owner, repo, branch, path, title}}}}) => {
     const file = data.ref
       ? data.ref.contents[0]
       : undefined
@@ -317,7 +330,10 @@ const EditorWithQuery = graphql(query, {
       content,
       sha: file ? file.sha : '',
       defaultTitle: title || basename(path, '.md'),
-      path: `content/${path}`
+      owner,
+      repo,
+      branch,
+      path
     }
   }
 })(EditorPage)
