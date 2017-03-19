@@ -2,6 +2,8 @@
 
 A CMS powered by GitHub API, Next.js and Draft.js.
 
+[Read this Medium draft about it](https://blog.interactivethings.com/an-article-cms-prototype-6a01a31bce3d).
+
 ## Development
 
 You we'll need following environment variables:
