@@ -2,7 +2,7 @@
 
 A CMS powered by GitHub API, Next.js and Draft.js.
 
-[Read this Medium draft about it](https://medium.com/project-r/an-article-cms-prototype-6a01a31bce3d).
+[Read this blog post to learn more](https://medium.com/project-r/an-article-cms-prototype-6a01a31bce3d).
 
 ## Development
 
