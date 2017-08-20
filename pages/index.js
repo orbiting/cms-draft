@@ -23,12 +23,12 @@ class NewArticle extends Component {
             const filePath = pathJoin(path, `${slug(value)}.md`)
             Router.push(
               `/editor?${[
-                `owner=${owner}`,
-                `repo=${repo}`,
-                `branch=${branch}`,
-                `path=${filePath}`
-              ]}&title=${encodeURIComponent(value)}`,
-              `/${[owner, repo, branch, path].join('/')}/edit`
+                `owner=${encodeURIComponent(owner)}`,
+                `repo=${encodeURIComponent(repo)}`,
+                `branch=${encodeURIComponent(branch)}`,
+                `path=${encodeURIComponent(filePath)}`
+              ].join('&')}&title=${encodeURIComponent(value)}`,
+              `/${[owner, repo, branch, filePath].join('/')}/edit`
             )
           }
         }} />
