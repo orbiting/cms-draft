@@ -4,7 +4,7 @@
   "description": "A CMS powered by GitHub APIs, Next.js and Draft.js.",
   "main": "index.js",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon -w index.js -w routes.js -w constants.js -w graphql index.js",
+    "dev": "cross-env NODE_ENV=development nodemon -w index.js -w routes.js -w constants.js -w graphql index.js",
     "build": "next build",
     "start": "node index.js",
     "standardize": "standard --fix 'src/**/*.js' 'pages/**/*.js'"
@@ -32,7 +32,7 @@
     "isomorphic-fetch": "^2.2.1",
     "js-base64": "^2.1.9",
     "js-yaml": "^3.8.1",
-    "markdown-draft-js": "tpreusse/markdown-draft-js#pre-build",
+    "markdown-draft-js": "^0.3.1",
     "next": "^2.0.0-beta",
     "next-routes": "^1.0.16",
     "query-string": "^4.3.2",
@@ -55,6 +55,7 @@
   },
   "homepage": "https://github.com/orbiting/cms-draft#readme",
   "devDependencies": {
+    "cross-env": "^5.0.5",
     "nodemon": "^1.11.0",
     "standard": "^8.6.0"
   }
